@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Arte ASCII</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+            background-color: #000;
+            color: #fff;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #333;
+            color: #fff;
+            border: 1px solid #555;
+        }
+        button {
+            background-color: #555;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #666;
+        }
+        #output {
+            margin: 20px 0;
+            font-family: monospace;
+            white-space: pre;
+            background: black;
+            padding: 20px;
+            color: white;
+            line-height: 1;
+        }
+        #imageOutput {
+            margin: 20px 0;
+            max-width: 100%;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Gerador de Arte ASCII</h1>
+    
+    <textarea id="inputText" placeholder="Digite seu texto aqui"></textarea>
+    
+    <div>
+        <button onclick="generateASCII()">Gerar Arte ASCII</button>
+        <button onclick="downloadImage()" id="downloadBtn" style="display:none">Download Imagem</button>
+    </div>
+
+    <pre id="output"></pre>
+    <canvas id="canvas" style="display:none"></canvas>
+    <img id="imageOutput">
+
+    <script>
+        const asciiLetters = {
+            'A': [
+                "╔═══╗",
+                "║   ║",
+                "╠═══╣",
+                "║   ║",
+                "║   ║"
+            ],
+            'B': [
+                "╔═══╗",
+                "║   ║",
+                "╠═══╣",
+                "║   ║",
+                "╚═══╝"
+            ],
+            'C': [
+                "╔═══╗",
+                "║   ╚",
+                "║    ",
+                "║   ╔",
+                "╚═══╝"
+            ],
+            'D': [
+                "╔═══╗",
+                "║   ║",
+                "║   ║",
+                "║   ║",
+                "╚═══╝"
+            ],
+            'E': [
+                "╔═══╗",
+                "║    ",
+                "╠═══╗",
+                "║    ",
+                "╚═══╝"
+            ],
+            'F': [
+                "╔═══╗",
+                "║    ",
+                "╠═══╗",
+                "║    ",
+                "║    "
+            ],
+            'G': [
+                "╔═══╗",
+                "║    ",
+                "║  ═╗",
+                "║   ║",
+                "╚═══╝"
+            ],
+            'H': [
+                "╔   ╗",
+                "║   ║",
+                "╠═══╣",
+                "║   ║",
+                "║   ║"
+            ],
+            'I': [
+                "╔═══╗",
+                "  ║  ",
+                "  ║  ",
+                "  ║  ",
+                "╚═══╝"
+            ],
+            'J': [
+                "╔═══╗",
+                "  ║  ",
+                "  ║  ",
+                "║ ║  ",
+                "╚═╝  "
+            ],
+            'K': [
+                "║   ║",
+                "║  ╔╝",
+                "╠══╝ ",
+                "║  ╔╗",
+                "║   ║"
+            ],
+            'L': [
+                "║    ",
+                "║    ",
+                "║    ",
+                "║    ",
+                "╚═══╝"
+            ],
+            'M': [
+                "╔   ╗",
+                "║╔╗ ║",
+                "║║║ ║",
+                "║║║ ║",
+                "║║║ ║"
+            ],
+            'N': [
+                "╔   ╗",
+                "║╔  ║",
+                "║║  ║",
+                "║║  ║",
+                "║ ╚═╝"
+            ],
+            'O': [
+                "╔═══╗",
+                "║   ║",
+                "║   ║",
+                "║   ║",
+                "╚═══╝"
+            ],
+            'P': [
+                "╔═══╗",
+                "║   ║",
+                "╠═══╝",
+                "║    ",
+                "║    "
+            ],
+            'Q': [
+                "╔═══╗",
+                "║   ║",
+                "║   ║",
+                "║  ╔╝",
+                "╚══╝ "
+            ],
+            'R': [
+                "╔═══╗",
+                "║   ║",
+                "╠═══╣",
+                "║  ╔╝",
+                "║   ║"
+            ],
+            'S': [
+                "╔═══╗",
+                "║    ",
+                "╚═══╗",
+                "    ║",
+                "╚═══╝"
+            ],
+            'T': [
+                "╔═══╗",
+                "  ║  ",
+                "  ║  ",
+                "  ║  ",
+                "  ║  "
+            ],
+            'U': [
+                "║   ║",
+                "║   ║",
+                "║   ║",
+                "║   ║",
+                "╚═══╝"
+            ],
+            'V': [
+                "║   ║",
+                "║   ║",
+                "║   ║",
+                "╚╗ ╔╝",
+                " ╚═╝ "
+            ],
+            'W': [
+                "║   ║",
+                "║   ║",
+                "║ ║ ║",
+                "║╔╝╔║",
+                "╚╝ ╚╝"
+            ],
+            'X': [
+                "║   ║",
+                "╚╗ ╔╝",
+                " ╚═╝ ",
+                "╔╝ ╔╗",
+                "║   ║"
+            ],
+            'Y': [
+                "║   ║",
+                "╚╗ ╔╝",
+                " ║║  ",
+                " ║║  ",
+                " ╚╝  "
+            ],
+            'Z': [
+                "╔═══╗",
+                "   ╔╝",
+                " ╔╝  ",
+                "╔╝   ",
+                "╚═══╝"
+            ],
+            ' ': [
+                "     ",
+                "     ",
+                "     ",
+                "     ",
+                "     "
+            ]
+        };
+
+        function generateASCII() {
+            const text = document.getElementById('inputText').value.toUpperCase();
+            const output = document.getElementById('output');
+            
+            let result = ['', '', '', '', ''];
+            
+            for (let char of text) {
+                const letter = asciiLetters[char] || asciiLetters[' '];
+                for (let i = 0; i < 5; i++) {
+                    result[i] += letter[i] + " ";
+                }
+            }
+            
+            output.textContent = result.join('\n');
+            
+            // Criar imagem
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Configurar canvas
+            canvas.width = text.length * 80;
+            canvas.height = 200;
+            
+            // Desenhar fundo
+            ctx.fillStyle = 'black';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Desenhar texto
+            ctx.fillStyle = 'white';
+            ctx.font = '24px monospace';
+            
+            result.forEach((line, index) => {
+                ctx.fillText(line, 10, 30 + (index * 30));
+            });
+            
+            // Mostrar imagem
+            const imageOutput = document.getElementById('imageOutput');
+            imageOutput.src = canvas.toDataURL('image/png');
+            imageOutput.style.display = 'block';
+            
+            // Mostrar botão de download
+            document.getElementById('downloadBtn').style.display = 'inline-block';
+        }
+
+        function downloadImage() {
+            const link = document.createElement('a');
+            link.download = 'ascii-art.png';
+            link.href = document.getElementById('canvas').toDataURL('image/png');
+            link.click();
+        }
+    </script>
+</body>
+</html>
